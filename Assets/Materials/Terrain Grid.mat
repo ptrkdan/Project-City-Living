@@ -26,10 +26,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - Radius: 0.3
+    - Vector1_1D1CA2CF: 13
     - _MaskRadius: 0.25
     m_Colors:
     - Color_A9BACB23: {r: 0.4078431, g: 0.7058824, b: 0.4039216, a: 0}
     - Vector2_4AC9C3C: {r: 20, g: 20, b: 0, a: 0}
     - Vector2_C79038BE: {r: 0.57, g: 0.68, b: 0, a: 0}
-    - _MaskPosition: {r: 0.6195766, g: 0.5699225, b: 0, a: 0}
+    - _MaskPosition: {r: -0.017143631, g: 0.7859461, b: 0, a: 0}
     - _TerrainSize: {r: 20, g: 20, b: 0, a: 0}
