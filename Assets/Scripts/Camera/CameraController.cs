@@ -7,8 +7,6 @@ public class CameraController : MonoBehaviour
     [Header("Pan")]
     [SerializeField] float keyboardPanSpeed = 10f;
     [SerializeField] float positionLerpTime = 0.2f;
-    [SerializeField] Vector2 panLimitMin = new Vector2();
-    [SerializeField] Vector2 panLimitMax = new Vector2();
 
     [Header("Rotation")]
     [SerializeField] float rotationLerpTime = 0.1f;
@@ -48,18 +46,16 @@ public class CameraController : MonoBehaviour
         Vector3 translation = direction * keyboardPanSpeed * PAN_SPEED_FACTOR * Time.deltaTime;
 
         _targetCameraState.Translate(translation);
-        _targetCameraState.x = Mathf.Clamp(_targetCameraState.x, panLimitMin.x, panLimitMax.x);
-        _targetCameraState.z = Mathf.Clamp(_targetCameraState.z, panLimitMin.y, panLimitMax.y);
 
-        var positionLerpPercent = 1f - Mathf.Exp(Mathf.Log(1f - 0.99f) / positionLerpTime) * Time.deltaTime;
-        var rotationLerpPercent = 1f - Mathf.Exp(Mathf.Log(1f - 0.99f) / rotationLerpTime) * Time.deltaTime;
+        var positionLerpPercent = 1f - Mathf.Exp(Mathf.Log(1f - 0.99f) / positionLerpTime * Time.deltaTime);
+        var rotationLerpPercent = 1f - Mathf.Exp(Mathf.Log(1f - 0.99f) / rotationLerpTime * Time.deltaTime);
         _interpolatingCameraState.LerpTowards(_targetCameraState, positionLerpPercent, rotationLerpPercent);
         _interpolatingCameraState.UpdateTransform(transform);
     }
 
     private void MousePan()
     {
-        if (Input.GetMouseButton(2))
+        if (Input.GetMouseButton(1))
         {
             offset = Camera.main.ScreenToWorldPoint(Input.mousePosition) - _targetCameraState.Transform;
             if (!_isDragging)
@@ -75,9 +71,12 @@ public class CameraController : MonoBehaviour
 
         if (_isDragging)
         {
-            transform.position = mouseOriginPoint - offset;
-            _targetCameraState.SetFromTransform(transform);
-            _interpolatingCameraState.SetFromTransform(transform);
+            Vector3 newPos = mouseOriginPoint - offset;
+            _targetCameraState.SetPosition(newPos);
+            var positionLerpPercent = 1f - Mathf.Exp(Mathf.Log(1f - 0.99f) / positionLerpTime * Time.deltaTime);
+            var rotationLerpPercent = 1f - Mathf.Exp(Mathf.Log(1f - 0.99f) / rotationLerpTime * Time.deltaTime);
+            _interpolatingCameraState.LerpTowards(_targetCameraState, positionLerpPercent, rotationLerpPercent);
+            _interpolatingCameraState.UpdateTransform(transform);
         }
     }
 
@@ -87,9 +86,6 @@ public class CameraController : MonoBehaviour
         float zoom = Camera.main.orthographicSize - scroll * Camera.main.orthographicSize;
         Camera.main.orthographicSize = Mathf.Clamp(zoom, zoomMin, zoomMax);
     }
-
-
-
 
     private Vector3 GetInputDirection()
     {

@@ -22,6 +22,20 @@ public class CameraState
         z = t.position.z;
     }
 
+    public void SetPosition(Vector3 position)
+    {
+        x = position.x;
+        //y = position.y;
+        z = position.z;
+    }
+
+    public void SetRotation(Vector3 eulerAngles)
+    {
+        pitch = eulerAngles.x;
+        yaw = eulerAngles.y;
+        roll = eulerAngles.z;
+    }
+
     public void Translate(Vector3 translation)
     {
         Vector3 rotatedTranslation = Quaternion.Euler(pitch, yaw, roll) * translation;
