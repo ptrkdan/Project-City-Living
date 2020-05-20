@@ -7,6 +7,7 @@ public class InputController : MonoBehaviour
     #endregion
 
     #region Fields
+    bool buildReset = false;
     Buildable selectedBuildable;
     #endregion
 
@@ -34,23 +35,53 @@ public class InputController : MonoBehaviour
 
     private void TryAddBuildable()
     {
+        bool isSuccess;
+        Ray ray;
         if (Input.GetMouseButton(0) && selectedBuildable != null)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if(Physics.Raycast(ray, out RaycastHit hit))
+            ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                bool isSuccess = TerrainController.instance.AddBuildable(selectedBuildable, hit.point);
+                if (selectedBuildable is BuildablePath)
+                {
+                    isSuccess = TerrainController.instance.TryAddBuildablePath((BuildablePath)selectedBuildable, hit.point, buildReset);
+                }
+                else
+                {
+                    isSuccess = TerrainController.instance.TryAddBuildable(selectedBuildable, hit.point, hit.point);
+                }
+
                 if (!isSuccess)
                 {
                     // Display error message
                 }
-                else
-                {
-                    selectedBuildable = null;
-                    TerrainController.instance.DisableGrid();
-                }
+                buildReset = false;
+            }
+
+            if (!(selectedBuildable is BuildablePath))
+            {
+                DeselectBuildable();
             }
         }
+        
+        // Origin release
+        if (Input.GetMouseButtonUp(0))
+        {
+            buildReset = true;
+        }
+
+        // Right-click cancel
+        if (Input.GetMouseButton(1) && selectedBuildable)
+        {
+            DeselectBuildable();
+        } 
+    }
+
+    private void DeselectBuildable()
+    {
+        buildReset = true;
+        selectedBuildable = null;
+        TerrainController.instance.DisableGrid();
     }
     #endregion
 }

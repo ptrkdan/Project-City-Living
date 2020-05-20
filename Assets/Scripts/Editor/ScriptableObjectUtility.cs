@@ -18,7 +18,7 @@ public class ScriptableObjectUtility
         else if (Path.GetExtension(path) != "")
             path = path.Replace(Path.GetFileName(AssetDatabase.GetAssetPath(Selection.activeObject)), "");
 
-        string assetFilePath = AssetDatabase.GenerateUniqueAssetPath($"{path}/New{typeof(T).ToString()}.asset");
+        string assetFilePath = AssetDatabase.GenerateUniqueAssetPath($"{path}/New{typeof(T)}.asset");
         AssetDatabase.CreateAsset(asset, assetFilePath);
         AssetDatabase.SaveAssets();
 

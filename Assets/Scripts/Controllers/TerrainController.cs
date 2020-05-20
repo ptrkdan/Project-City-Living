@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class TerrainController : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class TerrainController : MonoBehaviour
     #endregion
 
     #region Fields
+    List<Vector3> buildVector = new List<Vector3>();
+
     Vector2Int dimension = new Vector2Int();
     TerrainGrid terrainGrid;
     GameObject buildableList;
@@ -44,26 +47,54 @@ public class TerrainController : MonoBehaviour
     #endregion
 
     #region Buildable Methods
-    public bool AddBuildable(Buildable buildable, Vector3 position)
+    public bool TryAddBuildable(Buildable buildable, Vector3 position, Vector3 buildOrigin)
     {
         bool isSuccess = false;
 
         Vector3 gridPosition = GetGridPosition(position);
         if (IsGridPositionAvailable(gridPosition))
         {
-            buildables[(int)gridPosition.x, (int)gridPosition.z] 
-                = Instantiate(buildable, gridPosition, buildable.transform.rotation, buildableList.transform);
+            AddBuildable(buildable, gridPosition);
             isSuccess = true;
         }
 
         return isSuccess;
     }
 
-    public bool RemoveBuildable(Vector3 position)
+    public bool TryAddBuildablePath(BuildablePath buildable, Vector3 posNext, bool reset = false)
+    {
+        bool isSuccess = true;
+        Vector3 gridPosNext = GetGridPosition(posNext);
+
+        if (reset) buildVector.Clear();
+        
+        if (IsBacktracking(gridPosNext))
+        {
+            int lastIndex = buildVector.Count - 1;
+            RemoveBuildable(buildVector[lastIndex]);
+            buildVector.RemoveAt(lastIndex);
+            return false;
+        }
+
+        if (IsGridCoordAligned(gridPosNext) && IsGridPositionAvailable(gridPosNext))
+        {
+            AddBuildable(buildable, gridPosNext);
+            buildVector.Add(gridPosNext);
+        }
+
+        return isSuccess;
+    }
+
+    private void AddBuildable(Buildable buildable, Vector3 gridPosition)
+    {
+        buildables[(int)gridPosition.x, (int)gridPosition.z]
+          = Instantiate(buildable, gridPosition, buildable.transform.rotation, buildableList.transform);
+    }
+
+    public bool RemoveBuildable(Vector3 gridPosition)
     {
         bool isSuccess = false;
-        Vector3 gridPosition = GetGridPosition(position);
-        if (IsGridPositionAvailable(gridPosition))
+        if (!IsGridPositionAvailable(gridPosition))
         {
             buildables[(int)gridPosition.x, (int)gridPosition.z].Destroy();
             buildables[(int)gridPosition.x, (int)gridPosition.z] = null;
@@ -82,5 +113,19 @@ public class TerrainController : MonoBehaviour
     {
         return buildables[(int)position.x, (int)position.z] == null;
     }
+
+    private bool IsBacktracking(Vector3 position)
+    {
+        int lastIndex = buildVector.Count - 1;
+        if (buildVector.Count < 2) return false; // If the build vector has one or less, then cannot backtrack
+        return (buildVector[lastIndex - 1] == position);
+    }
+    private bool IsGridCoordAligned(Vector3 position)
+    {
+        int lastIndex = buildVector.Count - 1;
+        if (buildVector.Count < 1) return true; // If the build vector is empty, then nothing has been built yet.
+        return (buildVector[lastIndex].x == position.x || buildVector[lastIndex].z == position.z);
+    }
+
     #endregion
 }

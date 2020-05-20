@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89b4e81791993944fa8b99c1a7e856e2, type: 3}
-  m_Name: Path
+  m_Script: {fileID: 11500000, guid: 84f6b095e7de44047934e31c02e2eb43, type: 3}
+  m_Name: Road
   m_EditorClassIdentifier: 
   id: 0
-  cost: 5
+  cost: 0
   description: 
